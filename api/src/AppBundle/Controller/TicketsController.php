@@ -16,6 +16,6 @@ class TicketsController extends BaseController
     {
         $this->requireUserRole($request);
 
-        // TODO
+        return ['teste'];
     }
 }

@@ -13,7 +13,7 @@ class BaseController extends Controller
 {
     const LOGIN_TTL = 2592000; // 30 days
 
-    public function requireUserRole(Request $request)
+    protected function requireUserRole(Request $request)
     {
         $user = $this->getJWTUser($request);
 
@@ -22,7 +22,7 @@ class BaseController extends Controller
         }
     }
 
-    public function requireInspectorRole(Request $request)
+    protected function requireInspectorRole(Request $request)
     {
         $user = $this->getJWTUser($request);
 
@@ -35,10 +35,23 @@ class BaseController extends Controller
      * @param Request $request
      * @return bool|User
      */
-    private function getJWTUser(Request $request)
+    protected function getJWTUser(Request $request)
     {
-        // TODO
-        return false;
+        $jwtEncoder = $this->get('lexik_jwt_authentication.jwt_encoder');
+        $jwt = $jwtEncoder->decode($request->headers->get('Authorization'));
+
+        if (!isset($jwt['email']) || !$jwt['email']) {
+            return false;
+        }
+
+        $dm = $this->get('doctrine.odm.mongodb.document_manager');
+
+        /** @var User $user */
+        $user = $dm->getRepository('AppBundle:User')->findOneBy([
+            'email' => $jwt['email']
+        ]);
+
+        return $user;
     }
 
 }

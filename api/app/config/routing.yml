@@ -1,0 +1,9 @@
+app_login:
+    resource: @AppBundle/Controller/UserController.php
+    type:     rest
+    defaults: {_format: json}
+
+app_tickets:
+    resource: @AppBundle/Controller/TicketsController.php
+    type:     rest
+    defaults: {_format: json}

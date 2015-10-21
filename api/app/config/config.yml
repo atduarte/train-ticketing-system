@@ -39,7 +39,7 @@ doctrine_mongodb:
         default:
             server: mongodb://localhost:27017
             options: {}
-    default_database: matryoshka
+    default_database: train_ticketing_system
     document_managers:
         default:
             auto_mapping: true

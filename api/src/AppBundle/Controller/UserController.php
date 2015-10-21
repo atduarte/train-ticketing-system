@@ -19,13 +19,18 @@ class UserController extends BaseController
     {
         $email = $request->request->get('email');
         $password = $request->request->get('password');
+        $role = $request->request->get('role');
 
         $dm = $this->get('doctrine.odm.mongodb.document_manager');
 
+        $query = ['email' => $email];
+
+        if ($role === 'inspector') {
+            $query['isInspector'] = true;
+        }
+
         /** @var User $user */
-        $user = $dm->getRepository('AppBundle:User')->findOneBy([
-            'email' => $email
-        ]);
+        $user = $dm->getRepository('AppBundle:User')->findOneBy($query);
 
         if (!$user || !$user->checkPassword($password)) {
             throw new AccessDeniedException();
@@ -48,14 +53,20 @@ class UserController extends BaseController
     {
         $email = $request->request->get('email');
         $password = $request->request->get('password');
-        $confirmationPassword = $request->request->get('confirmation_password');
+        $creditCard = [
+            'name' => $request->request->get('cc-name'),
+            'number' => $request->request->get('cc-number'),
+            'cvc' => $request->request->get('cc-cvc'),
+            'month' => $request->request->get('cc-month'),
+            'year' => $request->request->get('cc-year'),
+        ];
 
         if (!$email || !$password) {
             throw new \Symfony\Component\Validator\Exception\InvalidArgumentException('Email and password required');
         }
 
-        if ($password !== $confirmationPassword) {
-            throw new \Symfony\Component\Validator\Exception\InvalidArgumentException('Passwords (password and confirmation_password) are different');
+        if (!$this->get('credit_card_validator')->validate($creditCard)) {
+            throw new \Symfony\Component\Validator\Exception\InvalidArgumentException('Invalid Credit Card given');
         }
 
         $dm = $this->get('doctrine.odm.mongodb.document_manager');

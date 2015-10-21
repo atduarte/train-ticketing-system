@@ -13,6 +13,23 @@ class BaseController extends Controller
 {
     const LOGIN_TTL = 2592000; // 30 days
 
+
+    public function setContainer(ContainerInterface $container = null)
+    {
+        parent::setContainer($container);
+        $this->init();
+    }
+
+    public function init()
+    {
+        $request = $this->get('request');
+
+        if (0 === strpos($request->headers->get('Content-Type'), 'application/json')) {
+            $data = json_decode($request->getContent(), true);
+            $request->request->replace(is_array($data) ? $data : array());
+        }
+    }
+
     protected function requireUserRole(Request $request)
     {
         $user = $this->getJWTUser($request);

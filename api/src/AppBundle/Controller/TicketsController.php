@@ -8,14 +8,18 @@ use FOS\RestBundle\Controller\Annotations\Get;
 class TicketsController extends BaseController
 {
     /**
-     * @Get("/example")
+     * @Get("/tickets")
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function exampleAction(Request $request)
+    public function getTicketsAction(Request $request)
     {
         $this->requireUserRole($request);
 
-        return ['teste'];
+        $from = $request->query->get('from');
+        $to = $request->query->get('to');
+        $date = $request->query->get('date'); // TODO: Convert to Mongo Date e piças
+
+        return $this->get('train_manager')->getDailyTrips($from, $to, null);
     }
 }

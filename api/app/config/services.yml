@@ -6,3 +6,10 @@ parameters:
 services:
     credit_card_validator:
         class: AppBundle\Service\CreditCardValidator
+
+    train_information:
+        class: AppBundle\Service\TrainInformation
+
+    train_manager:
+        class: AppBundle\Service\TrainManager
+        arguments: [@doctrine.odm.mongodb.document_manager, @train_information]

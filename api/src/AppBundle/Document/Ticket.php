@@ -29,6 +29,14 @@ class Ticket
     /** @MongoDB\Field(type="integer") */
     private $to;
 
+    public function __construct($user, $trip, $from, $to)
+    {
+        $this->user = $user;
+        $this->trip = $trip;
+        $this->from = $from;
+        $this->to = $to;
+    }
+
     /**
      * @return mixed
      */
@@ -62,7 +70,7 @@ class Ticket
     }
 
     /**
-     * @return mixed
+     * @return Trip
      */
     public function getTrip()
     {
@@ -107,6 +115,25 @@ class Ticket
     public function setTo($to)
     {
         $this->to = $to;
+    }
+
+    public function getCode()
+    {
+        return sha1((string)$this->id);
+    }
+
+    public function toArray()
+    {
+        return [
+            'code' => $this->getCode(),
+            'user' => $this->getUser()->getEmail(),
+            'date' => $this->getTrip()->getDate()->getTimestamp(),
+            'boughtAt' => (int)(new \MongoId($this->getId()))->getTimestamp(),
+            'lineNumber' => (int)$this->getTrip()->getLineNumber(),
+            'lineStations' => $this->getTrip()->getStations(),
+            'from' => (int)$this->from,
+            'to' => (int)$this->to
+        ];
     }
 
 

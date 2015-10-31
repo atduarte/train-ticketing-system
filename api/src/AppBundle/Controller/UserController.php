@@ -39,9 +39,7 @@ class UserController extends BaseController
         $jwtEncoder = $this->get('lexik_jwt_authentication.jwt_encoder');
         $jwt = $jwtEncoder->encode(['email' => $user->getEmail()]);
 
-        return [
-            'token' => $jwt
-        ];
+        return ['token' => $jwt];
     }
 
     /**
@@ -82,6 +80,7 @@ class UserController extends BaseController
         $user = new User();
         $user->setEmail($email);
         $user->setPassword($password);
+        $user->setCreditCard($creditCard);
 
         $dm->persist($user);
         $dm->flush();

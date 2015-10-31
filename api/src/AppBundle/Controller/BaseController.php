@@ -13,6 +13,7 @@ class BaseController extends Controller
 {
     const LOGIN_TTL = 2592000; // 30 days
 
+    protected $user;
 
     public function setContainer(ContainerInterface $container = null)
     {
@@ -32,18 +33,18 @@ class BaseController extends Controller
 
     protected function requireUserRole(Request $request)
     {
-        $user = $this->getJWTUser($request);
+        $this->user = $this->getJWTUser($request);
 
-        if (!$user) {
+        if (!$this->user) {
             throw new AccessDeniedException();
         }
     }
 
     protected function requireInspectorRole(Request $request)
     {
-        $user = $this->getJWTUser($request);
+        $this->user = $this->getJWTUser($request);
 
-        if (!$user || !$user->isInspector()) {
+        if (!$this->user || !$this->user->isInspector()) {
             throw new AccessDeniedException();
         }
     }

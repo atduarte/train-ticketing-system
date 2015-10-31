@@ -23,6 +23,9 @@ class User
     /** @MongoDB\Field(type="string") */
     private $hash;
 
+    /** @MongoDB\Field(type="hash") */
+    private $creditCard;
+
     /** @MongoDB\Field(type="boolean") */
     private $isInspector;
 
@@ -92,5 +95,21 @@ class User
     public function isInspector()
     {
         return $this->isInspector;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getCreditCard()
+    {
+        return $this->creditCard;
+    }
+
+    /**
+     * @param mixed $creditCard
+     */
+    public function setCreditCard($creditCard)
+    {
+        $this->creditCard = $creditCard;
     }
 }

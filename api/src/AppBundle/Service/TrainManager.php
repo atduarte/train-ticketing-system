@@ -5,6 +5,7 @@ namespace AppBundle\Service;
 
 use AppBundle\Document\Ticket;
 use AppBundle\Document\Trip;
+use AppBundle\Document\User;
 use Doctrine\ODM\MongoDB\DocumentManager;
 
 class TrainManager
@@ -17,13 +18,21 @@ class TrainManager
      * @var TrainInformation
      */
     private $trainInformation;
+    /**
+     * @var CreditCardValidator
+     */
+    private $creditCardValidator;
 
-
-    public function __construct(DocumentManager $documentManager, TrainInformation $trainInformation)
+    /**
+     * @param DocumentManager $documentManager
+     * @param TrainInformation $trainInformation
+     * @param CreditCardValidator $creditCardValidator
+     */
+    public function __construct(DocumentManager $documentManager, TrainInformation $trainInformation, CreditCardValidator $creditCardValidator)
     {
-
         $this->documentManager = $documentManager;
         $this->trainInformation = $trainInformation;
+        $this->creditCardValidator = $creditCardValidator;
     }
 
     public function getDailyTrips($fromName, $toName, $date)
@@ -119,6 +128,7 @@ class TrainManager
     }
 
     /**
+     * @param $user
      * @param $date
      * @param $lineNumber
      * @param $from
@@ -126,19 +136,50 @@ class TrainManager
      * @param $lineDeparture
      * @return Ticket|null
      */
-    public function buyTicket($date, $lineNumber, $from, $to, $lineDeparture)
+    public function buyTicket(User $user, $date, $lineNumber, $from, $to, $lineDeparture)
     {
         // Get Trip
+        $trip = $this->documentManager->getRepository('AppBundle:Trip')
+            ->findOneBy(['date' => $date, 'lineNumber' => (int)$lineNumber, 'departure' => (int)$lineDeparture]);
 
-        // If not existent
+        // If doesn't exists
+        if (!$trip) {
             // Check lineNumber | from | to | lineDeparture
+            if (!$line = $this->trainInformation->verifyLine($lineNumber, $from, $to, $lineDeparture)) {
+                throw new \RuntimeException('Invalid trip.');
+            }
+
             // Get Train capacity
+            if ($this->getCapacity($date, $lineNumber, $from, $to, $lineDeparture) == 0) {
+                throw new \RuntimeException('Trip is full.');
+            }
+
             // Create Trip
+            $trip = new Trip(
+                $lineNumber,
+                $line['stations'],
+                $date,
+                $lineDeparture,
+                $this->trainInformation->getCapacity()
+            );
+        }
+
+        if (!$this->creditCardValidator->validate($user->getCreditCard())) {
+            throw new \RuntimeException('Credit Card failed.');
+        }
 
         // Create Ticket
+        $ticket = new Ticket($user, $trip, $from, $to);
+
         // Update Trip
+        $trip->addTicketBought($from, $to);
+
         // Persist
-        // return ticket
+        $this->documentManager->persist($ticket);
+        $this->documentManager->persist($trip);
+        $this->documentManager->flush();
+
+        return $ticket;
     }
 
     public function getCapacity($date, $lineNumber, $from, $to, $lineDeparture)
@@ -150,5 +191,10 @@ class TrainManager
         $capacity = $trip ? $trip->getAvailableCapacity($from, $to) : $this->trainInformation->getCapacity();
 
         return $capacity;
+    }
+
+    protected function getTrip($date, $lineNumber, $from, $to, $lineDeparture)
+    {
+
     }
 }

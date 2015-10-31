@@ -158,4 +158,16 @@ class TrainInformation
     {
         return $this->lines;
     }
+
+    public function verifyLine($number, $from, $to, $departure)
+    {
+        foreach ($this->lines as $line) {
+            $stationsNo = count($line['stations']);
+            if ($number == $line['number'] && in_array($departure, $line['departures']) && $from < $to && $to < $stationsNo) {
+                return $line;
+            }
+        }
+
+        return false;
+    }
 }

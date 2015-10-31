@@ -12,4 +12,4 @@ services:
 
     train_manager:
         class: AppBundle\Service\TrainManager
-        arguments: [@doctrine.odm.mongodb.document_manager, @train_information]
+        arguments: [@doctrine.odm.mongodb.document_manager, @train_information, @credit_card_validator]

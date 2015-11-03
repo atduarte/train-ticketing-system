@@ -2,9 +2,13 @@
 
 namespace AppBundle\Controller;
 
+use AppBundle\Document\Ticket;
+use Symfony\Component\Form\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
+use Symfony\Component\Routing\Exception\InvalidParameterException;
+use Symfony\Component\Validator\Constraints\DateTime;
 
 class TicketsController extends BaseController
 {
@@ -84,6 +88,60 @@ class TicketsController extends BaseController
             $this->get('doctrine.odm.mongodb.document_manager')->getRepository('AppBundle:Ticket')
                 ->findBy(['user.$id' => new \MongoId($this->user->getId())])
         );
+    }
+
+    /**
+     * @Get("/lines")
+     * @param Request $request
+     * @return array
+     */
+    public function getLinesAction(Request $request)
+    {
+        $this->requireInspectorRole($request);
+
+        $lines = $this->get('train_information')->getLines();
+
+        return array_map(function ($line) {
+            return [
+                'line' => $line['number'],
+                'from' => $line['stations'][0]['name'],
+                'to' => end($line['stations'])['name'],
+                'departures' => $line['departures']
+            ];
+        }, $lines);
+
+    }
+
+    /**
+     * @Get("/valid-tickets")
+     * @param Request $request
+     * @return array
+     */
+    public function getTicketsForValidationAction(Request $request)
+    {
+        $this->requireInspectorRole($request);
+
+        $lineNumber = $request->query->get('line');
+        $departure = $request->query->get('departure');
+
+        if (!is_numeric($lineNumber) || !is_numeric($departure)) {
+            throw new InvalidArgumentException('Line Number ("line") and Departure ("departure") query parameters are required and should be numeric.');
+        }
+
+        // Get Trip
+        $date = new \DateTime();
+        $date->setTime(0,0);
+        $trip = $this->get('doctrine.odm.mongodb.document_manager')->getRepository('AppBundle:Trip')
+            ->findOneBy(['date' => new \MongoDate($date->getTimestamp())]);
+
+        // Get Tickets(
+        $tickets = [];
+        if ($trip) {
+            $tickets = $this->get('doctrine.odm.mongodb.document_manager')->getRepository('AppBundle:Ticket')
+                ->findBy(['trip.$id' => new \MongoId($trip->getId())]);
+        }
+
+        return array_map(function (Ticket $ticket) { return $ticket->toArray(); }, $tickets);
     }
 
     protected function parseDate($date)

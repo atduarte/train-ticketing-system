@@ -7,6 +7,7 @@ use AppBundle\Document\Ticket;
 use AppBundle\Document\Trip;
 use AppBundle\Document\User;
 use Doctrine\ODM\MongoDB\DocumentManager;
+use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 class TrainManager
 {
@@ -35,6 +36,12 @@ class TrainManager
         $this->creditCardValidator = $creditCardValidator;
     }
 
+    /**
+     * @param $fromName
+     * @param $toName
+     * @param $date
+     * @return array
+     */
     public function getDailyTrips($fromName, $toName, $date)
     {
         $possibilities = [];
@@ -146,12 +153,7 @@ class TrainManager
         if (!$trip) {
             // Check lineNumber | from | to | lineDeparture
             if (!$line = $this->trainInformation->verifyLine($lineNumber, $from, $to, $lineDeparture)) {
-                throw new \RuntimeException('Invalid trip.');
-            }
-
-            // Get Train capacity
-            if ($this->getCapacity($date, $lineNumber, $from, $to, $lineDeparture) == 0) {
-                throw new \RuntimeException('Trip is full.');
+                throw new BadRequestHttpException('Invalid trip.');
             }
 
             // Create Trip
@@ -164,8 +166,13 @@ class TrainManager
             );
         }
 
+        // Get Train capacity
+        if ($trip->getAvailableCapacity($from, $to) == 0) {
+            throw new BadRequestHttpException('Trip is full.');
+        }
+
         if (!$this->creditCardValidator->validate($user->getCreditCard())) {
-            throw new \RuntimeException('Credit Card failed.');
+            throw new BadRequestHttpException('Credit Card failed.');
         }
 
         // Create Ticket
@@ -182,19 +189,22 @@ class TrainManager
         return $ticket;
     }
 
+    /**
+     * @param $date
+     * @param $lineNumber
+     * @param $from
+     * @param $to
+     * @param $lineDeparture
+     * @return int|mixed
+     */
     public function getCapacity($date, $lineNumber, $from, $to, $lineDeparture)
     {
-
         /** @var null|Trip $trip */
-        $trip = null; // TODO:  Search for the Trip Object
+        $trip = $this->documentManager->getRepository('AppBundle:Trip')
+            ->findOneBy(['date' => $date, 'lineNumber' => (int)$lineNumber, 'departure' => (int)$lineDeparture]);
 
         $capacity = $trip ? $trip->getAvailableCapacity($from, $to) : $this->trainInformation->getCapacity();
 
         return $capacity;
-    }
-
-    protected function getTrip($date, $lineNumber, $from, $to, $lineDeparture)
-    {
-
     }
 }

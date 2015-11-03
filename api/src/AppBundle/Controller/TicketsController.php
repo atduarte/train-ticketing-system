@@ -24,6 +24,7 @@ class TicketsController extends BaseController
             $stations = array_merge($stations, array_column($line['stations'], 'name'));
         }
 
+        $stations = array_values(array_unique($stations));
         return ['stations' => $stations];
     }
 

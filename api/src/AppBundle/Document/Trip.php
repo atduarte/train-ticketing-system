@@ -144,10 +144,11 @@ class Trip
         $capacities = [$this->totalCapacity];
 
         for ($i = $from; $i < $to; $i++) {
-            $capacities[] = $this->ticketsBought[$i];
+            $capacities[] = $this->totalCapacity - $this->ticketsBought[$i];
         }
 
-        return min($capacities);
+        $capacity = min($capacities);
+        return $capacity < 0 ? 0 : $capacity;
     }
 
     /**

@@ -43,7 +43,7 @@ class TicketsController extends BaseController
 
         $from = $request->query->get('from');
         $to = $request->query->get('to');
-        $date = $this->parseDate($request->request->get('date'));
+        $date = $this->parseDate($request->query->get('date'));
 
         return $this->get('train_manager')->getDailyTrips($from, $to, $date);
     }

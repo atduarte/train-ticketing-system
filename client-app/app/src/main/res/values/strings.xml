@@ -1,0 +1,40 @@
+<resources>
+    <string name="app_name">RailwaysPortugal</string>
+    
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="action_register">Register</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_register">Register</string>
+    <string name="prompt_passwordconfirmation">Password Confirmation</string>
+    <string name="cc_name">cc-name</string>
+    <string name="cc_number">cc-number</string>
+    <string name="cc_year">cc-year</string>
+    <string name="cc_month">cc-month</string>
+    <string name="cc_cvc">cc-cvc</string>
+    <string name="error_invalid_ccnumber">17 digits required</string>
+    <string name="error_invalid_ccCVC">3 digits required</string>
+    <string name="error_invalid_date">Date invalid</string>
+    <string name="action_yourtickets">Your Tickets</string>
+    <string name="action_searchandbuy">Buy Ticket</string>
+    <string name="action_networkmap">Map / Lines</string>
+
+    <string name="title_activity_network_map">NetworkMapActivity</string>
+    <string name="dummy_button">Dummy Button</string>
+    <string name="dummy_content">DUMMY\nCONTENT</string>
+    <string name="title_activity_timetable">TimetableActivity</string>
+    <string name="searchtimetable">Search</string>
+    <string name="title_activity_date">DateActivity</string>
+    <string name="title_activity_list_results">ListResultsActivity</string>
+    <string name="action_timetables">Timetable</string>
+</resources>

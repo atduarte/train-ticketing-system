@@ -30,18 +30,17 @@ import java.util.Map;
 
 public class TimetableActivity extends Activity {
 
-    String token;
+    private String token;
     private RequestQueue queue;
     private JsonObjectRequest  jsObjRequest ;
-    String departure;
-    String arrival;
+    private String departure;
+    private String arrival;
 
     ArrayList<String> stations;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timetable);
-        token = new String();
         stations = new ArrayList<>();
         Bundle extras = getIntent().getExtras();
         if(extras !=null) {
@@ -117,10 +116,11 @@ public class TimetableActivity extends Activity {
                 if(departure!=arrival)
                 {
                     Intent i = new Intent(TimetableActivity.this, DateActivity.class);
-                    startActivity(i);
+
                     i.putExtra("TOKEN", token);
                     i.putExtra("ARRIVAL", arrival);
                     i.putExtra("DEPARTURE", departure);
+                    startActivity(i);
                 }
 
             }

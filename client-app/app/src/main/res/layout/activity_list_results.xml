@@ -12,123 +12,15 @@
 
     <ScrollView
         android:layout_width="fill_parent"
-        android:layout_height="fill_parent">
+        android:layout_height="fill_parent"
+        android:id="@+id/listofresults">
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            >
 
-            <TextView
-                android:gravity="center_horizontal"
-                android:id="@+id/title"
-                android:layout_width="fill_parent"
-                android:layout_height="wrap_content"
-                android:textColor="#000000"
-                android:textSize="35sp"
-                android:text="FROM  TO"
-                >
-            </TextView>
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:orientation="vertical">
-
-                <TextView
-                    android:gravity="center_horizontal"
-                    android:id="@+id/lblUserRep"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:lines="2"
-
-                    android:text="HH:MM Porto 35min Aveito HH:MM\nHH:MM Porto 35min Aveito HH:MM"
-                    >
-                </TextView>
-
-
-                <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Buy"
-                    android:id="@+id/button1"
-                    android:layout_gravity="right" />
-            </LinearLayout>
-
-
-
-
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:orientation="vertical">
-
-                <TextView
-                    android:gravity="center_horizontal"
-                    android:id="@+id/lblUserRep2"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:lines="2"
-
-                    android:text="HH:MM Porto 35min Aveito HH:MM\nHH:MM Porto 35min Aveito HH:MM"
-                    >
-                </TextView>
-
-
-                <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Buy"
-                    android:id="@+id/button2"
-                    android:layout_gravity="right" />
-            </LinearLayout>
-
-
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:orientation="vertical">
-
-            <LinearLayout
-                android:layout_width="fill_parent"
-                android:layout_height="fill_parent"
-                android:orientation="vertical">
-
-                <TextView
-                    android:gravity="center_horizontal"
-                    android:id="@+id/lblUserRep3"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:lines="2"
-
-                    android:text="HH:MM Porto 35min Aveito HH:MM\nHH:MM Porto 35min Aveito HH:MM"
-                    >
-                </TextView>
-
-
-                <Button
-                    style="?android:attr/buttonStyleSmall"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Buy"
-                    android:id="@+id/button3"
-                    android:layout_gravity="right" />
-            </LinearLayout>
-
-
-
-        </LinearLayout>
         </LinearLayout>
 
     </ScrollView>

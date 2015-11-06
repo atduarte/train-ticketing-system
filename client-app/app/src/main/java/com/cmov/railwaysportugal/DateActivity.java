@@ -9,20 +9,22 @@ import android.widget.DatePicker;
 
 public class DateActivity extends Activity {
 
-    String token;
-    String arrivalstation;
-    String departurestation;
+    private String token;
+    private String arrivalstation;
+    private String departurestation;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_date);
         Bundle extras = getIntent().getExtras();
-        DatePicker datePicker = (DatePicker) findViewById(R.id.dateresult);
+        final DatePicker datePicker = (DatePicker) findViewById(R.id.dateresult);
         datePicker.setMinDate(System.currentTimeMillis());
 
-        extras.getString("TOKEN", token);
-        extras.getString("ARRIVAL", arrivalstation);
-        extras.getString("DEPARTURE", departurestation);
+        token = extras.getString("TOKEN");
+        arrivalstation = extras.getString("ARRIVAL");
+        departurestation = extras.getString("DEPARTURE");
+
+
 
 
         Button mSubmitAll = (Button) findViewById(R.id.submitall);
@@ -30,6 +32,10 @@ public class DateActivity extends Activity {
             @Override
             public void onClick(View view) {
                 Intent i = new Intent(DateActivity.this, ListResultsActivity.class);
+                i.putExtra("TOKEN", token);
+                i.putExtra("ARRIVAL", arrivalstation);
+                i.putExtra("DEPARTURE", departurestation);
+                i.putExtra("DATE", datePicker.getYear() + "-" + datePicker.getMonth() + "-" + datePicker.getDayOfMonth());
                 startActivity(i);
             }
         });

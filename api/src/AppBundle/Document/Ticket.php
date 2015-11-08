@@ -138,8 +138,7 @@ class Ticket
 
         $toSign = $ticket['id'] . $ticket['from'] . $ticket['to'] . $ticket['date'] . $ticket['departure'];
         openssl_sign($toSign, $signature, $res);
-        $ticket['xpto'] = sha1($toSign);
-        $ticket['signature'] = base64_encode(utf8_encode($signature));
+        $ticket['signature'] = base64_encode($signature);
 
         return $ticket;
     }

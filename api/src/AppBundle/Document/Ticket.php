@@ -126,6 +126,7 @@ class Ticket
     {
         $ticket = [
             'id' => $this->getId(),
+            'lineNumber' => $this->getTrip()->getLineNumber(),
             'date' => $this->getTrip()->getDate()->format('Y-m-d'),
             'from' => $this->getTrip()->getStations()[(int)$this->from]['name'],
             'to' => $this->getTrip()->getStations()[(int)$this->to]['name'],
@@ -136,7 +137,7 @@ class Ticket
         $res = openssl_get_privatekey(fread($fp, 8192));
         fclose($fp);
 
-        $toSign = $ticket['id'] . $ticket['from'] . $ticket['to'] . $ticket['date'] . $ticket['departure'];
+        $toSign = $ticket['id'] . $ticket['lineNumber'] . $ticket['from'] . $ticket['to'] . $ticket['date'] . $ticket['departure'];
         openssl_sign($toSign, $signature, $res);
         $ticket['signature'] = base64_encode($signature);
 

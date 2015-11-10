@@ -126,6 +126,8 @@ class TrainInformation
                 'lineStations' => $line['stations'],
                 'from' => $fromIndex,
                 'to' => $toIndex,
+                'fromName' => $line['stations'][$fromIndex]['name'],
+                'toName' => $line['stations'][$toIndex]['name'],
                 'lineDuration' => $line['duration'],
                 'lineDistance' => end($line['stations'])['km']
             ];

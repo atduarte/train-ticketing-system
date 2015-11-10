@@ -1,53 +1,36 @@
 package com.cmov.railwaysportugalback;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
+import android.app.LoaderManager.LoaderCallbacks;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.Loader;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.app.LoaderManager.LoaderCallbacks;
-
-import android.content.CursorLoader;
-import android.content.Loader;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.AsyncTask;
-
-import android.os.Build;
-import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.view.Window;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -62,13 +45,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private static final int REQUEST_READ_CONTACTS = 0;
 
     /**
-     * A dummy authentication store containing known user names and passwords.
-     * TODO: remove after connecting to a real authentication system.
-     */
-    private static final String[] DUMMY_CREDENTIALS = new String[]{
-            "foo@example.com:hello", "bar@example.com:world"
-    };
-    /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private UserLoginTask mAuthTask = null;
@@ -76,11 +52,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     // UI references.
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
-    private View mProgressView;
-    private View mLoginFormView;
 
     private RequestQueue queue;
-    private JsonObjectRequest  jsObjRequest ;
+    private JsonObjectRequest jsObjRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,15 +78,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         });
 
 
-
-        mLoginFormView = findViewById(R.id.login_form);
-        mProgressView = findViewById(R.id.login_progress);
+//        mLoginFormView = findViewById(R.id.login_form);
+//        mProgressView = findViewById(R.id.login_progress);
     }
 
 
-
     @Override
-    protected void onStop () {
+    protected void onStop() {
         super.onStop();
         if (queue != null) {
             queue.cancelAll("LOGIN");
@@ -217,7 +189,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             mAuthTask.execute((Void) null);
 
 
-
         }
     }
 
@@ -226,7 +197,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     }
 
     private boolean isPasswordValid(String password) {
-
         return true;
     }
 
@@ -262,36 +232,25 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         @Override
         protected Boolean doInBackground(Void... params) {
-            // TODO: attempt authentication against a network service.
-
-
             // Instantiate the RequestQueue.
             queue = Volley.newRequestQueue(LoginActivity.this);
-            String url ="http://54.186.113.106/login";
+            String url = Config.url + "/login";
             JSONObject parameters = new JSONObject();
+
             try {
-                parameters.put("email",mEmail);
+                parameters.put("email", mEmail);
+                parameters.put("password", mPassword);
+                parameters.put("role", "inspector");
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            try {
-                parameters.put("password",mPassword);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            try {
-                parameters.put("password",mPassword);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
+
             // Request a string response from the provided URL.
 
-            jsObjRequest  = new JsonObjectRequest(Request.Method.POST, url, parameters,
+            jsObjRequest = new JsonObjectRequest(Request.Method.POST, url, parameters,
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-
-
                             Intent i = new Intent(LoginActivity.this, MainActivity.class);
                             String token = null;
                             try {
@@ -326,9 +285,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             new DialogInterface.OnClickListener() {
                                 public void onClick(DialogInterface dialog, int which) {
                                     dialog.dismiss();
-                                    Intent i = new Intent(LoginActivity.this, LoginActivity.class);
-                                    startActivity(i);
-                                    finish();
                                 }
                             });
                     alertDialog.show();
@@ -339,69 +295,9 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             jsObjRequest.setTag("LOGIN");
 
             // Add the request to the RequestQueue.
-            queue.add(jsObjRequest );
-
-
-            return true;
-        }
-
-
-
-        @Override
-        protected void onCancelled() {
-            mAuthTask = null;
-        }
-
-
-    }
-
-
-    /**
-     * Represents an asynchronous registration task used to authenticate
-     * the user.
-     */
-    public class UserRegisterTask extends AsyncTask<Void, Void, Boolean> {
-
-        private final String mEmail;
-        private final String mPassword;
-
-        UserRegisterTask(String email, String password) {
-            mEmail = email;
-            mPassword = password;
-        }
-
-        @Override
-        protected Boolean doInBackground(Void... params) {
-            // TODO: attempt register against a network service.
-
-            try {
-                // Simulate network access.
-                Thread.sleep(2000);
-            } catch (InterruptedException e) {
-                return false;
-            }
-
-            for (String credential : DUMMY_CREDENTIALS) {
-                String[] pieces = credential.split(":");
-                if (pieces[0].equals(mEmail)) {
-                    // Account exists, return true if the password matches.
-                    return pieces[1].equals(mPassword);
-                }
-            }
+            queue.add(jsObjRequest);
 
             return true;
-        }
-
-        @Override
-        protected void onPostExecute(final Boolean success) {
-            mAuthTask = null;
-
-            if (success) {
-                finish();
-            } else {
-                mPasswordView.setError(getString(R.string.error_incorrect_password));
-                mPasswordView.requestFocus();
-            }
         }
 
         @Override

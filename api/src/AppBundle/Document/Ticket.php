@@ -124,16 +124,23 @@ class Ticket
 
     public function toArray()
     {
-        return [
-            'code' => $this->getCode(),
-            'user' => $this->getUser()->getEmail(),
-            'date' => $this->getTrip()->getDate()->getTimestamp(),
-            'boughtAt' => (int)(new \MongoId($this->getId()))->getTimestamp(),
-            'lineNumber' => (int)$this->getTrip()->getLineNumber(),
-            'lineStations' => $this->getTrip()->getStations(),
-            'from' => (int)$this->from,
-            'to' => (int)$this->to
+        $ticket = [
+            'id' => $this->getId(),
+            'date' => $this->getTrip()->getDate()->format('Y-m-d'),
+            'from' => $this->getTrip()->getStations()[(int)$this->from]['name'],
+            'to' => $this->getTrip()->getStations()[(int)$this->to]['name'],
+            'departure' => $this->getTrip()->getDeparture()
         ];
+
+        $fp = fopen(__DIR__ . '/../../../app/Resources/id_rsa', 'r');
+        $res = openssl_get_privatekey(fread($fp, 8192));
+        fclose($fp);
+
+        $toSign = $ticket['id'] . $ticket['from'] . $ticket['to'] . $ticket['date'] . $ticket['departure'];
+        openssl_sign($toSign, $signature, $res);
+        $ticket['signature'] = base64_encode($signature);
+
+        return $ticket;
     }
 
 

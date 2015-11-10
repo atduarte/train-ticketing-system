@@ -43,6 +43,16 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+        Button mTickets = (Button) findViewById(R.id.yourtickets);
+        mTickets.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, MyTicketsAcitivty.class);
+                i.putExtra("TOKEN", token);
+                startActivity(i);
+            }
+        });
+
 
     }
     @Override

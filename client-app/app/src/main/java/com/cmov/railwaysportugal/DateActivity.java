@@ -35,7 +35,8 @@ public class DateActivity extends Activity {
                 i.putExtra("TOKEN", token);
                 i.putExtra("ARRIVAL", arrivalstation);
                 i.putExtra("DEPARTURE", departurestation);
-                i.putExtra("DATE", datePicker.getYear() + "-" + datePicker.getMonth() + "-" + datePicker.getDayOfMonth());
+                Integer datecenas = new Integer(datePicker.getMonth())+1;
+                i.putExtra("DATE", datePicker.getYear() + "-" + datecenas.toString() + "-" + datePicker.getDayOfMonth());
                 startActivity(i);
             }
         });

@@ -90,27 +90,29 @@ class TicketsController extends BaseController
         );
     }
 
-//    /**
-//     * @Get("/lines")
-//     * @param Request $request
-//     * @return array
-//     */
-//    public function getLinesAction(Request $request)
-//    {
-//        $this->requireInspectorRole($request);
-//
-//        $lines = $this->get('train_information')->getLines();
-//
-//        return array_map(function ($line) {
-//            return [
-//                'line' => $line['number'],
-//                'from' => $line['stations'][0]['name'],
-//                'to' => end($line['stations'])['name'],
-//                'departures' => $line['departures']
-//            ];
-//        }, $lines);
-//
-//    }
+    /**
+     * @Get("/lines")
+     * @param Request $request
+     * @return array
+     */
+    public function getLinesAction(Request $request)
+    {
+        // $this->requireInspectorRole($request);
+
+        $lines = $this->get('train_information')->getLines();
+
+        return array_map(function ($line) {
+            return [
+                'lineNumber' => $line['number'],
+                'from' => $line['stations'][0]['name'],
+                'to' => end($line['stations'])['name'],
+                'stations' => $line['stations'],
+                'duration' => $line['duration'],
+                'departures' => $line['departures']
+            ];
+        }, $lines);
+
+    }
 
 //    /**
 //     * @param Request $request

@@ -97,18 +97,21 @@ class TicketsController extends BaseController
      */
     public function getLinesAction(Request $request)
     {
-        // $this->requireInspectorRole($request);
+        $this->requireInspectorRole($request);
 
         $lines = $this->get('train_information')->getLines();
 
         return array_map(function ($line) {
+            $times = [];
+
+            foreach ($line['departures'] as $departure) {
+                $times[] = [$departure, 20];
+            }
+
             return [
                 'lineNumber' => $line['number'],
-                'from' => $line['stations'][0]['name'],
-                'to' => end($line['stations'])['name'],
-                'stations' => $line['stations'],
-                'duration' => $line['duration'],
-                'departures' => $line['departures']
+                'name' => $line['stations'][0]['name'] . ' - ' . end($line['stations'])['name'],
+                'times' => $times
             ];
         }, $lines);
 

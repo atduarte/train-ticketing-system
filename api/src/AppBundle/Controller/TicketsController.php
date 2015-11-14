@@ -86,7 +86,7 @@ class TicketsController extends BaseController
         return array_map(
             function ($ticket) { return $ticket->toArray(); },
             $this->get('doctrine.odm.mongodb.document_manager')->getRepository('AppBundle:Ticket')
-                ->findBy(['user.$id' => new \MongoId($this->user->getId())])
+                ->findBy(['user.$id' => new \MongoId($this->user->getId())], ['date' => -1])
         );
     }
 

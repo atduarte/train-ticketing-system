@@ -3,7 +3,7 @@ package com.cmov.railwaysportugalback.QRCode;
 import android.app.Activity;
 import android.view.View;
 
-import com.cmov.railwaysportugalback.MainActivity;
+import com.cmov.railwaysportugalback.Activity.MainActivity;
 import com.google.zxing.integration.android.IntentIntegrator;
 
 public class QRCodeReader implements View.OnClickListener {

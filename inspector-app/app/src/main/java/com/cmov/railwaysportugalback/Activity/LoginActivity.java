@@ -1,4 +1,4 @@
-package com.cmov.railwaysportugalback;
+package com.cmov.railwaysportugalback.Activity;
 
 import android.annotation.TargetApi;
 import android.app.AlertDialog;
@@ -14,23 +14,30 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.cmov.railwaysportugalback.Config;
+import com.cmov.railwaysportugalback.R;
+import com.cmov.railwaysportugalback.ApiData;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import static android.Manifest.permission.READ_CONTACTS;
 
@@ -59,6 +66,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        queue = Volley.newRequestQueue(LoginActivity.this);
 
         //set content view AFTER ABOVE sequence (to avoid crash)
         setContentView(R.layout.activity_login);
@@ -68,7 +76,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         mPasswordView = (EditText) findViewById(R.id.password);
 
-
         Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
@@ -76,10 +83,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 attemptLogin(0);
             }
         });
-
-
-//        mLoginFormView = findViewById(R.id.login_form);
-//        mProgressView = findViewById(R.id.login_progress);
     }
 
 
@@ -155,49 +158,8 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
 
-        boolean cancel = false;
-        View focusView = null;
-
-        // Check for a valid password, if the user entered one.
-        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
-            mPasswordView.setError(getString(R.string.error_invalid_password));
-            focusView = mPasswordView;
-            cancel = true;
-        }
-
-        // Check for a valid email address.
-        if (TextUtils.isEmpty(email)) {
-            mEmailView.setError(getString(R.string.error_field_required));
-            focusView = mEmailView;
-            cancel = true;
-        } else if (!isEmailValid(email)) {
-            mEmailView.setError(getString(R.string.error_invalid_email));
-            focusView = mEmailView;
-            cancel = true;
-        }
-
-        if (cancel) {
-            // There was an error; don't attempt login and focus the first
-            // form field with an error.
-            focusView.requestFocus();
-        } else {
-            // Show a progress spinner, and kick off a background task to
-            // perform the user login attempt.
-
-
-            mAuthTask = new UserLoginTask(email, password);
-            mAuthTask.execute((Void) null);
-
-
-        }
-    }
-
-    private boolean isEmailValid(String email) {
-        return true;
-    }
-
-    private boolean isPasswordValid(String password) {
-        return true;
+        mAuthTask = new UserLoginTask(email, password);
+        mAuthTask.execute((Void) null);
     }
 
     @Override
@@ -213,6 +175,10 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    public void loginOnEnd() {
+        mAuthTask = null;
     }
 
 
@@ -233,7 +199,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         @Override
         protected Boolean doInBackground(Void... params) {
             // Instantiate the RequestQueue.
-            queue = Volley.newRequestQueue(LoginActivity.this);
             String url = Config.url + "/login";
             JSONObject parameters = new JSONObject();
 
@@ -251,46 +216,22 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                     new Response.Listener<JSONObject>() {
                         @Override
                         public void onResponse(JSONObject response) {
-                            Intent i = new Intent(LoginActivity.this, MainActivity.class);
-                            String token = null;
                             try {
-                                Log.e("Resquest", "Cheguei aqui token" + response.get("token").toString());
-                                token = response.get("token").toString();
+                                ApiData.token = response.get("token").toString();
+                                ApiData.publicKey = response.get("publicKey").toString();
+
+                                getLines();
                             } catch (JSONException e) {
-                                AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
-                                alertDialog.setTitle("Credentials");
-                                alertDialog.setMessage("Your account does not have privileges, try again!");
-                                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                                        new DialogInterface.OnClickListener() {
-                                            public void onClick(DialogInterface dialog, int which) {
-                                                dialog.dismiss();
-                                                Intent i = new Intent(LoginActivity.this, LoginActivity.class);
-                                                startActivity(i);
-                                                finish();
-                                            }
-                                        });
-                                alertDialog.show();
+                                createDialog("Your account does not have privileges, try again!");
                             }
-                            i.putExtra("TOKEN", token);
-                            startActivity(i);
-                            finish();
                         }
                     }, new Response.ErrorListener() {
                 @Override
                 public void onErrorResponse(VolleyError error) {
-                    AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
-                    alertDialog.setTitle("Credentials");
-                    alertDialog.setMessage("Email or Password Incorrect or account does not have privileges, try again!");
-                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                            new DialogInterface.OnClickListener() {
-                                public void onClick(DialogInterface dialog, int which) {
-                                    dialog.dismiss();
-                                }
-                            });
-                    alertDialog.show();
+                    createDialog("Sorry, couldn't Connect");
                 }
 
-            });
+            }) ;
 
             jsObjRequest.setTag("LOGIN");
 
@@ -298,6 +239,50 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             queue.add(jsObjRequest);
 
             return true;
+        }
+
+        protected void getLines() {
+            JsonArrayRequest jsArrRequest = new JsonArrayRequest(Request.Method.GET,  Config.url + "/lines", "",
+                    new Response.Listener<JSONArray>() {
+                        @Override
+                        public void onResponse(JSONArray response) {
+                            Intent i = new Intent(LoginActivity.this, MenuActivity.class);
+                            ApiData.tripsInfo = response.toString();
+                            startActivity(i);
+                            finish();
+                        }
+                    },
+                    new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    createDialog("Sorry, couldn't connect to get lines. " + error.getMessage());
+                }
+
+            }) {
+                @Override
+                public Map<String, String> getHeaders() throws AuthFailureError {
+                    Map<String, String>  params = new HashMap<>();
+                    params.put("Authorization", ApiData.token);
+                    return params;
+                }
+            };
+
+            queue.add(jsArrRequest);
+        }
+
+        protected void createDialog(String message)
+        {
+            AlertDialog alertDialog = new AlertDialog.Builder(LoginActivity.this).create();
+            alertDialog.setTitle("Credentials");
+            alertDialog.setMessage(message);
+            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            LoginActivity.this.mAuthTask = null;
+                        }
+                    });
+            alertDialog.show();
         }
 
         @Override

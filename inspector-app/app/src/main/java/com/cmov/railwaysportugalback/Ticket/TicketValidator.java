@@ -35,9 +35,6 @@ public class TicketValidator {
     }
 
     public boolean validate(Ticket ticket) {
-//        PublicKey pub = get("MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAO3VWP2LVsIX81GR7lVyVI2Regsms0Xg\n" +
-//                "Eeqk8RVV8Dp9gbhIbrK7YwXuEtaHj/lsE73uXY81ODQARoKrGapnYk0CAwEAAQ==");
-
         try {
             return Security.verifySignature(ticket.getSignable(), publicKey, ticket.getSignature());
         } catch (Exception e) {

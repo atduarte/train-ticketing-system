@@ -114,7 +114,47 @@ class TicketsController extends BaseController
                 'times' => $times
             ];
         }, $lines);
+    }
 
+    /**
+     * @Get("/timetable")
+     * @param Request $request
+     * @return array
+     */
+    public function getTimetableAction(Request $request)
+    {
+        $this->requireUserRole($request);
+
+        $lines = $this->get('train_information')->getLines();
+
+        return array_map(function ($rawLine) {
+            $line = [
+                'line' => $rawLine['number'],
+                'from' => $rawLine['stations'][0]['name'],
+                'to' => end($rawLine['stations'])['name'],
+                'timetables' => []
+            ];
+
+            foreach ($rawLine['departures'] as $departureTime) {
+                $timetable = [
+                    'departure' => $departureTime,
+                    'arrival' => $departureTime + $rawLine['duration'],
+                    'stations' => []
+                ];
+
+                $totalKm = end($rawLine['stations'])['km'];
+                foreach ($rawLine['stations'] as $station) {
+                    $timetable['stations'][] = [
+                        'name' => $station['name'],
+                        'departure' => ceil($departureTime + (($station['km'] / $totalKm) * $rawLine['duration']))
+                    ];
+                }
+
+                $line['timetables'][] = $timetable;
+            }
+
+            return $line;
+        }, $lines);
     }
 
 //    /**

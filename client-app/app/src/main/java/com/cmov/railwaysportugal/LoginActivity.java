@@ -303,6 +303,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                             try {
                                 Log.e("Resquest","Cheguei aqui token"+response.get("token").toString());
                                 token = response.get("token").toString();
+                                Config.token = token;
                             } catch (JSONException e) {
                                 e.printStackTrace();
                             }

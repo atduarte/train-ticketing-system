@@ -42,6 +42,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        Button mSchedule = (Button) findViewById(R.id.timetables);
+        mSchedule.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(MainActivity.this, ScheduleActivity.class);
+                //i.putExtra("TOKEN", token);
+                startActivity(i);
+            }
+        });
+
 
         Button mTickets = (Button) findViewById(R.id.yourtickets);
         mTickets.setOnClickListener(new View.OnClickListener() {

@@ -1,27 +1,23 @@
 package com.cmov.railwaysportugal;
 
+import android.support.design.widget.TabLayout;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.Toolbar;
 
-import android.app.Activity;
-import android.app.ActionBar;
-import android.app.AlertDialog;
-import android.app.FragmentTransaction;
-
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.content.DialogInterface;
-import android.support.v13.app.FragmentPagerAdapter;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import android.transition.Scene;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -30,18 +26,16 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MyTicketsAcitivty extends AppCompatActivity {
+public class ScheduleActivity extends AppCompatActivity {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -49,64 +43,56 @@ public class MyTicketsAcitivty extends AppCompatActivity {
      * {@link FragmentPagerAdapter} derivative, which will keep every
      * loaded fragment in memory. If this becomes too memory intensive, it
      * may be best to switch to a
-     * {@link android.support.v13.app.FragmentStatePagerAdapter}.
+     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
+    protected Lines[] lines;
+
     RequestQueue queue;
     JsonArrayRequest jsObjRequest ;
-    JsonObjectRequest jsonRequest ;
+
 
     /**
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-    private String token;
 
-    protected static ArrayList<Ticket> mytickets;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my_tickets_acitivty);
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        Bundle extras = getIntent().getExtras();
+        setContentView(R.layout.activity_schedule);
 
-        if(extras !=null) {
-            token = extras.getString("TOKEN");
-        }
+        //get lines
 
-        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-        }
 
-        //get my tickets
-        mytickets = new ArrayList<>();
-        queue = Volley.newRequestQueue(MyTicketsAcitivty.this);
-        String url ="http://54.186.113.106/my-tickets";
+
+        queue = Volley.newRequestQueue(ScheduleActivity.this);
+        String url ="http://54.186.113.106/timetable";
 
         jsObjRequest  = new JsonArrayRequest(Request.Method.GET, url, null,
                 new Response.Listener<JSONArray>() {
                     @Override
                     public void onResponse(JSONArray  response) {
-                            //create array
-                        JSONArray jsonArray = (JSONArray)response;
-                        if (jsonArray != null) {
-                            int len = jsonArray.length();
-                            for (int i=0;i<len;i++){
-                                try {
-                                    mytickets.add(new Ticket(jsonArray.get(i).toString()));
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                            mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
 
-                            // Set up the ViewPager with the sections adapter.
-                            mViewPager = (ViewPager) findViewById(R.id.container);
-                            mViewPager.setAdapter(mSectionsPagerAdapter);
-                        }
+                        Gson gson = new Gson();
+                        lines = gson.fromJson(response.toString(), Lines[].class);
+
+                        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+                        setSupportActionBar(toolbar);
+                        // Create the adapter that will return a fragment for each of the three
+                        // primary sections of the activity.
+                        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+
+                        // Set up the ViewPager with the sections adapter.
+                        mViewPager = (ViewPager) findViewById(R.id.container);
+                        mViewPager.setAdapter(mSectionsPagerAdapter);
+
+
+
+                        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+                        tabLayout.setupWithViewPager(mViewPager);
+
                     }
                 },  new Response.ErrorListener()
         {
@@ -124,12 +110,9 @@ public class MyTicketsAcitivty extends AppCompatActivity {
             }
         };
 
-        jsObjRequest.setTag("TICKETS");
+        jsObjRequest.setTag("TIMETABLE");
 
         queue.add(jsObjRequest);
-        //END
-
-
 
 
     }
@@ -138,7 +121,7 @@ public class MyTicketsAcitivty extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_my_tickets_acitivty, menu);
+        getMenuInflater().inflate(R.menu.menu_schedule, menu);
         return true;
     }
 
@@ -172,18 +155,20 @@ public class MyTicketsAcitivty extends AppCompatActivity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position);
+            return PlaceholderFragment.newInstance(position + 1);
         }
 
         @Override
         public int getCount() {
             // Show 3 total pages.
-            return mytickets.size();
+            return lines.length;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
-            return "Ticket "+position;
+
+            return "LINE Nº"+new Integer(position+1).toString();
+
         }
     }
 
@@ -205,13 +190,6 @@ public class MyTicketsAcitivty extends AppCompatActivity {
             PlaceholderFragment fragment = new PlaceholderFragment();
             Bundle args = new Bundle();
             args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            args.putString("to", mytickets.get(sectionNumber).to);
-            args.putString("from", mytickets.get(sectionNumber).from);
-            args.putString("date", mytickets.get(sectionNumber).date);
-            args.putString("signature", mytickets.get(sectionNumber).jsonQR);
-            args.putString("hour",  new Integer(mytickets.get(sectionNumber).departure)/60+":"+new Integer(mytickets.get(sectionNumber).departure)%60);
-
-
             fragment.setArguments(args);
             return fragment;
         }
@@ -222,23 +200,9 @@ public class MyTicketsAcitivty extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            FrameLayout frlayout;
-            View rootView = inflater.inflate(R.layout.fragment_my_tickets_acitivty, container, false);
-            TextView textView = (TextView) rootView.findViewById(R.id.to);
-            TextView textView2 = (TextView) rootView.findViewById(R.id.from);
-            TextView textView3 = (TextView) rootView.findViewById(R.id.date);
-            TextView textView4 = (TextView) rootView.findViewById(R.id.hour);
-            TextView textView5 = (TextView) rootView.findViewById(R.id.title);
-            Integer i = getArguments().getInt(ARG_SECTION_NUMBER)+1;
-            textView5.setText(textView5.getText()+i.toString());
-            textView.setText(getArguments().getString("to"));
-            textView2.setText(getArguments().getString("from"));
-            textView3.setText(getArguments().getString("date"));
-            textView4.setText(getArguments().getString("hour"));
-            frlayout = (FrameLayout) rootView.findViewById(R.id.qrcodebiew);
-            //View qrcodeviewex = rootView.findViewById(R.id.QRCodeView);
-            QRCodeView q1 = new QRCodeView(container.getContext(),getArguments().getString("signature"));
-            frlayout.addView(q1);
+            View rootView = inflater.inflate(R.layout.fragment_schedule, container, false);
+            //TextView textView = (TextView) rootView.findViewById(R.id.section_label);
+            //textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
             return rootView;
         }
     }

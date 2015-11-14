@@ -28,6 +28,7 @@
 
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:textSize="16sp"
                 android:text="FROM:"
                 />
 
@@ -36,18 +37,20 @@
                     android:id="@+id/departure"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
+                    android:textSize="16sp"
                      />
             <TextView
 
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
+                android:textSize="16sp"
                 android:text="TO:"
                 />
                 <Spinner
                     android:id="@+id/arrivals"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-
+                    android:textSize="16sp"
                      />
 
 

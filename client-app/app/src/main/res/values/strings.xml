@@ -14,7 +14,7 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">Railways Portugal</string>
     <string name="title_activity_register">Register</string>
     <string name="prompt_passwordconfirmation">Password Confirmation</string>
     <string name="cc_name">cc-name</string>
@@ -40,4 +40,5 @@
     <string name="title_activity_my_tickets_acitivty">MyTicketsAcitivty</string>
     <string name="action_settings">Settings</string>
     <string name="section_format">Hello World from section: %1$d</string>
+    <string name="title_activity_schedule">Schedule</string>
 </resources>

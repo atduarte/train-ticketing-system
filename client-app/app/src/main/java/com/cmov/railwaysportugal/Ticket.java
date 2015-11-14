@@ -14,6 +14,8 @@ public class Ticket {
     public String departure;
     public String signature;
 
+    public String jsonQR;
+
     Ticket(String tr)
     {
         JSONObject js=null;
@@ -29,6 +31,7 @@ public class Ticket {
             to = js.getString("to");
             departure = js.getString("departure");
             signature = js.getString("signature");
+            jsonQR = js.toString();
         } catch (JSONException e) {
             e.printStackTrace();
         }

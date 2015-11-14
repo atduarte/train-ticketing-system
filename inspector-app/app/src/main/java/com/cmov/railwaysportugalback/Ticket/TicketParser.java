@@ -9,6 +9,7 @@ public class TicketParser {
 
         return new Ticket(
                 jsonObject.getString("id"),
+                jsonObject.getInt("lineNumber"),
                 jsonObject.getString("from"),
                 jsonObject.getString("to"),
                 jsonObject.getString("date"),

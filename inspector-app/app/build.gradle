@@ -23,9 +23,8 @@ android {
 repositories {
     mavenCentral()
 
-    maven {
-        url "http://dl.bintray.com/journeyapps/maven"
-    }
+    maven { url "http://dl.bintray.com/journeyapps/maven" }
+    maven { url "https://jitpack.io" }
 }
 
 dependencies {
@@ -34,6 +33,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.android.support:design:23.1.0'
     compile 'com.mcxiaoke.volley:library:1.0.17'
+    compile 'com.google.code.gson:gson:2.3'
 
     // Supports Android 4.0.3 and later (API level 15)
     compile 'com.journeyapps:zxing-android-embedded:2.0.1@aar'
@@ -51,4 +51,6 @@ dependencies {
     // This mostly affects encoding, but you should test if you plan to support these versions.
     // Older versions e.g. 2.2 may also work if you need support for older Android versions.
     compile 'com.google.zxing:core:3.0.1'
+
+    compile 'com.github.PhilJay:MPAndroidChart:v2.1.5'
 }

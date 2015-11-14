@@ -7,10 +7,12 @@ public class Ticket {
     protected String to;
     protected String date;
     protected Integer departure;
+    protected Integer lineNumber;
     protected String signature;
 
-    public Ticket(String id, String from, String to, String date, Integer departure, String signature) {
+    public Ticket(String id, Integer lineNumber, String from, String to, String date, Integer departure, String signature) {
         this.id = id;
+        this.lineNumber = lineNumber;
         this.from = from;
         this.to = to;
         this.date = date;
@@ -38,11 +40,15 @@ public class Ticket {
         return departure;
     }
 
+    public Integer getLineNumber() {
+        return lineNumber;
+    }
+
     public String getSignature() {
         return signature;
     }
 
     public String getSignable() {
-        return id + from + to + date + departure.toString();
+        return id + lineNumber.toString() + from + to + date + departure.toString();
     }
 }

@@ -97,21 +97,64 @@ class TicketsController extends BaseController
      */
     public function getLinesAction(Request $request)
     {
-        // $this->requireInspectorRole($request);
+        $this->requireInspectorRole($request);
 
         $lines = $this->get('train_information')->getLines();
 
         return array_map(function ($line) {
+            $times = [];
+
+            foreach ($line['departures'] as $departure) {
+                $times[] = [$departure, $this->get('train_information')->getCapacity()];
+            }
+
             return [
                 'lineNumber' => $line['number'],
-                'from' => $line['stations'][0]['name'],
-                'to' => end($line['stations'])['name'],
-                'stations' => $line['stations'],
-                'duration' => $line['duration'],
-                'departures' => $line['departures']
+                'name' => $line['stations'][0]['name'] . ' - ' . end($line['stations'])['name'],
+                'times' => $times
             ];
         }, $lines);
+    }
 
+    /**
+     * @Get("/timetable")
+     * @param Request $request
+     * @return array
+     */
+    public function getTimetableAction(Request $request)
+    {
+        $this->requireUserRole($request);
+
+        $lines = $this->get('train_information')->getLines();
+
+        return array_map(function ($rawLine) {
+            $line = [
+                'line' => $rawLine['number'],
+                'from' => $rawLine['stations'][0]['name'],
+                'to' => end($rawLine['stations'])['name'],
+                'timetables' => []
+            ];
+
+            foreach ($rawLine['departures'] as $departureTime) {
+                $timetable = [
+                    'departure' => $departureTime,
+                    'arrival' => $departureTime + $rawLine['duration'],
+                    'stations' => []
+                ];
+
+                $totalKm = end($rawLine['stations'])['km'];
+                foreach ($rawLine['stations'] as $station) {
+                    $timetable['stations'][] = [
+                        'name' => $station['name'],
+                        'departure' => ceil($departureTime + (($station['km'] / $totalKm) * $rawLine['duration']))
+                    ];
+                }
+
+                $line['timetables'][] = $timetable;
+            }
+
+            return $line;
+        }, $lines);
     }
 
 //    /**

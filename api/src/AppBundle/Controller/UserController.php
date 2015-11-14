@@ -17,6 +17,8 @@ class UserController extends BaseController
      */
     public function loginAction(Request $request)
     {
+        $result = [];
+
         $email = $request->request->get('email');
         $password = $request->request->get('password');
         $role = $request->request->get('role');
@@ -27,6 +29,7 @@ class UserController extends BaseController
 
         if ($role === 'inspector') {
             $query['isInspector'] = true;
+            $result['publicKey'] = "MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAO3VWP2LVsIX81GR7lVyVI2Regsms0Xg\nEeqk8RVV8Dp9gbhIbrK7YwXuEtaHj/lsE73uXY81ODQARoKrGapnYk0CAwEAAQ==";
         }
 
         /** @var User $user */
@@ -38,8 +41,9 @@ class UserController extends BaseController
 
         $jwtEncoder = $this->get('lexik_jwt_authentication.jwt_encoder');
         $jwt = $jwtEncoder->encode(['email' => $user->getEmail()]);
+        $result['token'] = $jwt;
 
-        return ['token' => $jwt];
+        return $result;
     }
 
     /**

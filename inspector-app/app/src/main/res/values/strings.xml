@@ -15,5 +15,6 @@
         completions."
     </string>
     <string name="action_register">Register</string>
-    <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_main">Validation</string>
+    <string name="title_activity_menu">Railways Portugal</string>
 </resources>

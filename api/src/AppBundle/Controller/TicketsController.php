@@ -105,7 +105,7 @@ class TicketsController extends BaseController
             $times = [];
 
             foreach ($line['departures'] as $departure) {
-                $times[] = [$departure, 20];
+                $times[] = [$departure, $this->get('train_information')->getCapacity()];
             }
 
             return [

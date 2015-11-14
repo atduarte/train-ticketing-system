@@ -12,7 +12,7 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:supportsRtl="true">
+        android:supportsRtl="true" >
         <activity
             android:name=".LoginActivity"
             android:label="@string/app_name"
@@ -26,7 +26,7 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
-            android:theme="@style/Theme.AppCompat.Light" >
+            android:theme="@style/AppTheme" >
         </activity>
         <activity
             android:name=".RegisterActivity"
@@ -36,31 +36,36 @@
         <activity
             android:name=".NetworkMapActivity"
             android:label="@string/title_activity_network_map"
-            android:theme="@style/Theme.AppCompat.Light"
-            >
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme" >
         </activity>
         <activity
             android:name=".TimetableActivity"
             android:label="@string/title_activity_timetable"
-            android:theme="@style/Theme.AppCompat.Light"
-            >
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme" >
         </activity>
         <activity
             android:name=".DateActivity"
             android:label="@string/title_activity_date"
-            android:theme="@style/Theme.AppCompat.Light"
-            >
+            android:theme="@style/AppTheme" >
         </activity>
         <activity
             android:name=".ListResultsActivity"
             android:label="@string/title_activity_list_results"
-            android:theme="@style/Theme.AppCompat.Light"
-            >
+            android:parentActivityName=".TimetableActivity"
+            android:theme="@style/AppTheme" >
         </activity>
         <activity
             android:name=".MyTicketsAcitivty"
             android:label="@string/title_activity_my_tickets_acitivty"
-            android:theme="@style/Theme.AppCompat.Light">
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme" >
+        </activity>
+        <activity
+            android:name=".ScheduleActivity"
+            android:label="@string/title_activity_schedule"
+            android:theme="@style/AppTheme.NoActionBar" >
         </activity>
     </application>
 

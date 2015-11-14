@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.app.Activity;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
@@ -28,7 +29,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TimetableActivity extends Activity {
+public class TimetableActivity extends AppCompatActivity {
 
     private String token;
     private RequestQueue queue;
@@ -41,10 +42,16 @@ public class TimetableActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_timetable);
+        setTitle("Buy Tickets");
         stations = new ArrayList<>();
         Bundle extras = getIntent().getExtras();
         if(extras !=null) {
             token = extras.getString("TOKEN");
+        }
+
+        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
         }
 
         final Spinner departureStation = (Spinner) findViewById(R.id.departure);
@@ -96,7 +103,7 @@ public class TimetableActivity extends Activity {
             @Override
             public Map<String, String> getHeaders() throws AuthFailureError {
                 Map<String, String>  params = new HashMap<String, String>();
-                params.put("Authorization", token);
+                params.put("Authorization", Config.token);
                 return params;
             }
         };

@@ -1,18 +1,22 @@
 package com.cmov.railwaysportugal;
 
-import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.app.Activity;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -34,7 +38,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class ListResultsActivity extends Activity {
+public class ListResultsActivity extends AppCompatActivity {
 
     String token;
     String arrivalstation;
@@ -42,13 +46,15 @@ public class ListResultsActivity extends Activity {
     String datebirth;
 
     TimetablesTalk mAuthTask = null;
-
+    ListView listtripsview;
     RequestQueue queue;
     JsonArrayRequest  jsObjRequest ;
     JsonObjectRequest  jsonRequest ;
 
     ArrayList<TrainResult> schedules;
 
+    ArrayList<String> listtrips = new ArrayList<String>();
+    ArrayAdapter<String> adapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -63,8 +69,17 @@ public class ListResultsActivity extends Activity {
         }
 
         TextView tv1 =(TextView)this.findViewById(R.id.titlelist);
-        tv1.setText(departurestation+" -> "+arrivalstation+"\n"+datebirth);
 
+
+        listtripsview = (ListView)this.findViewById(R.id.listcenas);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+            actionBar.setTitle(departurestation+" -> "+arrivalstation);
+            actionBar.setSubtitle(datebirth);
+        }
+
+        listtrips = new ArrayList<>();
         schedules = new ArrayList<>();
         mAuthTask = new TimetablesTalk();
         mAuthTask.execute((Void) null);
@@ -72,57 +87,33 @@ public class ListResultsActivity extends Activity {
         //get train results
 
 
+
     }
 
     protected void createLayout()
     {
+
+
         for(int i = 0; i< schedules.size() ; i++)
         {
-            addResult((LinearLayout) super.findViewById(R.id.listofresults), schedules.get(i));
+            addResult( schedules.get(i));
         }
-    }
 
 
-    protected void addResult(LinearLayout scrollviewresults, final TrainResult trainresults)
-    {
+        adapter = new ArrayAdapter<String>(this,
+                android.R.layout.simple_list_item_1, android.R.id.text1, listtrips);
 
-        LinearLayout l1 = new LinearLayout(this);
-        l1.setOrientation(LinearLayout.VERTICAL);
+        listtripsview.setAdapter(adapter);
+        listtripsview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
-        TableRow.LayoutParams textviewlayout = new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT,TableRow.LayoutParams.WRAP_CONTENT);
-        TableRow.LayoutParams textviewlayout2 = new TableRow.LayoutParams(TableRow.LayoutParams.WRAP_CONTENT,TableRow.LayoutParams.WRAP_CONTENT);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT);
-        l1.setLayoutParams(lp);
-        //viewById.addView();
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
 
-        TextView t1 = new TextView(this);
-        t1.setGravity(Gravity.CENTER_HORIZONTAL);
-        t1.setLines(2);
-        t1.setLayoutParams(textviewlayout);
-        String textrespresented = new String();
-        for(int i = 0; i < trainresults.stations.size() ; i++)
-        {
-            textrespresented += "Departure: "+trainresults.stations.get(i).departuretime/60 +":"+trainresults.stations.get(i).departuretime%60;
-            textrespresented += " ";
-            textrespresented += trainresults.stations.get(i).fromStation;
-            textrespresented += " ";
-            textrespresented += "Dur(min): "+trainresults.stations.get(i).duration.toString();
-            textrespresented += " ";
-            textrespresented += "Arrival: "+trainresults.stations.get(i).toStation;
-            textrespresented += " ";
-            textrespresented += trainresults.stations.get(i).arrivaltime/60 +":"+trainresults.stations.get(i).arrivaltime%60;
-            textrespresented += " ";
-            textrespresented += "\n";
-        }
-        t1.setText(textrespresented);
+                // ListView Clicked item index
+                int itemPosition     = position;
 
-        Button b1 = new Button(this);
-        b1.setLayoutParams(textviewlayout2);
-        b1.setText("Buy");
-        //b1.setGravity(Gravity.CENTER_HORIZONTAL);
-
-        b1.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
+                TrainResult trainresults = schedules.get(position);
 
                 for(int i = 0; i < trainresults.stations.size(); i++) {
                     queue = Volley.newRequestQueue(ListResultsActivity.this);
@@ -132,25 +123,13 @@ public class ListResultsActivity extends Activity {
                     JSONObject parameters = new JSONObject();
                     try {
                         parameters.put("lineNumber",trainresults.stations.get(i).lineNumber);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    try {
+
                         parameters.put("lineDeparture",trainresults.stations.get(i).departuretime);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    try {
+
                         parameters.put("from",trainresults.stations.get(i).from);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    try {
+
                         parameters.put("to",trainresults.stations.get(i).to);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    try {
+
                         parameters.put("date",datebirth);
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -198,30 +177,58 @@ public class ListResultsActivity extends Activity {
                         @Override
                         public Map<String, String> getHeaders() throws AuthFailureError {
                             Map<String, String>  params = new HashMap<String, String>();
-                            params.put("Authorization", token);
+                            params.put("Authorization", Config.token);
                             return params;
                         }
                     };
 
 
                     jsonRequest.setTag("TIMETABLE");
-
+                    queue.add(jsonRequest);
                     // Add the request to the RequestQueue.
 
                 }
 
 
 
-
-
-
             }
+
         });
+    }
 
-        l1.addView(t1);
-        l1.addView(b1);
 
-        scrollviewresults.addView(l1);
+    protected void addResult(final TrainResult trainresults)
+    {
+
+
+        Double distance = 0.0;
+        String textrespresented = new String();
+        for(int i = 0; i < trainresults.stations.size() ; i++)
+        {
+
+
+            textrespresented += String.format("%02d:%02d", trainresults.stations.get(i).departuretime/60 , trainresults.stations.get(i).departuretime%60);
+            textrespresented += "-";
+            textrespresented += String.format("%02d:%02d", trainresults.stations.get(i).arrivaltime / 60, trainresults.stations.get(i).arrivaltime % 60);
+            if(i == 0 && trainresults.stations.size()>1 )
+            {
+                textrespresented += " / ";
+            }
+            if(i == 1)
+            {
+                textrespresented +="\n";
+                textrespresented += "Change at: "+trainresults.stations.get(i).fromStation;
+            }
+            distance = distance + trainresults.stations.get(i).distance*1.0;
+            if(i == 0 && trainresults.stations.size()==1 )
+            {
+                textrespresented +="\n";
+            }
+        }
+
+        textrespresented += " "+ distance + "€";
+
+        listtrips.add(textrespresented);
 
 
 
@@ -284,7 +291,7 @@ public class ListResultsActivity extends Activity {
                 @Override
                 public Map<String, String> getHeaders() throws AuthFailureError {
                     Map<String, String>  params = new HashMap<String, String>();
-                    params.put("Authorization", token);
+                    params.put("Authorization", Config.token);
                     return params;
                 }
             };

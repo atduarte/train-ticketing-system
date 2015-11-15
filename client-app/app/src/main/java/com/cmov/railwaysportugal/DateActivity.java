@@ -24,9 +24,6 @@ public class DateActivity extends Activity {
         arrivalstation = extras.getString("ARRIVAL");
         departurestation = extras.getString("DEPARTURE");
 
-
-
-
         Button mSubmitAll = (Button) findViewById(R.id.submitall);
         mSubmitAll.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -28,6 +28,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.RequestFuture;
 import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
@@ -51,6 +52,8 @@ public class ListResultsActivity extends AppCompatActivity {
     JsonArrayRequest  jsObjRequest ;
     JsonObjectRequest  jsonRequest ;
 
+    int parameterok;
+
     ArrayList<TrainResult> schedules;
 
     ArrayList<String> listtrips = new ArrayList<String>();
@@ -68,7 +71,7 @@ public class ListResultsActivity extends AppCompatActivity {
             datebirth = extras.getString("DATE");
         }
 
-        TextView tv1 =(TextView)this.findViewById(R.id.titlelist);
+
 
 
         listtripsview = (ListView)this.findViewById(R.id.listcenas);
@@ -90,111 +93,139 @@ public class ListResultsActivity extends AppCompatActivity {
 
     }
 
-    protected void createLayout()
-    {
+    protected void createLayout() {
 
-
-        for(int i = 0; i< schedules.size() ; i++)
-        {
+        for(int i = 0; i< schedules.size() ; i++) {
             addResult( schedules.get(i));
         }
 
-
-        adapter = new ArrayAdapter<String>(this,
+        adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, listtrips);
 
         listtripsview.setAdapter(adapter);
         listtripsview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
 
                 // ListView Clicked item index
-                int itemPosition     = position;
 
-                TrainResult trainresults = schedules.get(position);
+                final TrainResult trainresults = schedules.get(position);
 
-                for(int i = 0; i < trainresults.stations.size(); i++) {
-                    queue = Volley.newRequestQueue(ListResultsActivity.this);
-                    String url ="http://54.186.113.106/ticket";
-
-
-                    JSONObject parameters = new JSONObject();
-                    try {
-                        parameters.put("lineNumber",trainresults.stations.get(i).lineNumber);
-
-                        parameters.put("lineDeparture",trainresults.stations.get(i).departuretime);
-
-                        parameters.put("from",trainresults.stations.get(i).from);
-
-                        parameters.put("to",trainresults.stations.get(i).to);
-
-                        parameters.put("date",datebirth);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-
-                    // Request a string response from the provided URL.
-
-                    jsonRequest  = new JsonObjectRequest(Request.Method.POST, url, parameters,
-                            new Response.Listener<JSONObject>() {
-                                @Override
-                                public void onResponse(JSONObject  response) {
-                                    AlertDialog alertDialog = new AlertDialog.Builder(ListResultsActivity.this).create();
-                                    alertDialog.setTitle("Ticket");
-                                    alertDialog.setMessage("Confirm Purchase?");
-                                    alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                                            new DialogInterface.OnClickListener() {
-                                                public void onClick(DialogInterface dialog, int which) {
-                                                    dialog.dismiss();
-
-                                                }
-                                            });
-                                    alertDialog.show();
-                                }
-                            },  new Response.ErrorListener()
-                    {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            AlertDialog alertDialog = new AlertDialog.Builder(ListResultsActivity.this).create();
-                            alertDialog.setTitle("Tickets");
-                            alertDialog.setMessage("Error, try again!");
-                            alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
-                                    new DialogInterface.OnClickListener() {
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            dialog.dismiss();
-                                            jsonRequest.setTag("TIMETABLE");
-                                            queue.add(jsonRequest);
-                                        }
-                                    });
-                            alertDialog.show();
-
-                        }
-                    }
-                    ) {
-                        @Override
-                        public Map<String, String> getHeaders() throws AuthFailureError {
-                            Map<String, String>  params = new HashMap<String, String>();
-                            params.put("Authorization", Config.token);
-                            return params;
-                        }
-                    };
-
-
-                    jsonRequest.setTag("TIMETABLE");
-                    queue.add(jsonRequest);
-                    // Add the request to the RequestQueue.
-
+                try {
+                    buyticketrequest(trainresults, 0);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
                 }
-
 
 
             }
 
         });
     }
+
+
+    public void buyticketrequest(final TrainResult trainresults, final int i) throws InterruptedException {
+        parameterok = 3;
+        queue = Volley.newRequestQueue(ListResultsActivity.this);
+        String url ="http://54.186.113.106/ticket";
+
+        final boolean isLastTicket = i == trainresults.stations.size()-1;
+
+        final JSONObject parameters = new JSONObject();
+
+        //todo: cottigir
+        if(i == 1) {
+            try {
+                parameters.put("continuation", 1);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        } else {
+            try {
+                parameters.put("continuation", 0);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
+
+        try {
+            parameters.put("lineNumber",trainresults.stations.get(i).lineNumber);
+            parameters.put("lineDeparture",trainresults.stations.get(i).linedepaturetime);
+            parameters.put("from",trainresults.stations.get(i).from);
+            parameters.put("to",trainresults.stations.get(i).to);
+            parameters.put("date",datebirth);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        final String toname = trainresults.stations.get(i).toStation;
+        final String fromname = trainresults.stations.get(i).fromStation;
+
+        // Request a string response from the provided URL.
+        RequestFuture<JSONObject> future = RequestFuture.newFuture();
+        jsonRequest  = new JsonObjectRequest(Request.Method.POST, url, parameters,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject  response) {
+                        AlertDialog alertDialog = new AlertDialog.Builder(ListResultsActivity.this).create();
+                        alertDialog.setTitle("Ticket");
+                        alertDialog.setMessage("Ticket Purchased \n"+fromname+" -> "+toname);
+                        alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        dialog.dismiss();
+                                        // ir para mytickets
+                                        if(i == trainresults.stations.size()-1) {
+
+                                            Intent inte = new Intent(ListResultsActivity.this, MyTicketsAcitivty.class);
+                                            finish();
+
+                                            startActivity(inte);
+                                        }
+                                        else {
+                                            try {
+                                                buyticketrequest(trainresults, i + 1);
+                                            } catch (InterruptedException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
+                                });
+                        alertDialog.show();
+                    }
+                },  new Response.ErrorListener()
+        {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                AlertDialog alertDialog = new AlertDialog.Builder(ListResultsActivity.this).create();
+                alertDialog.setTitle("Tickets");
+                alertDialog.setMessage("Error, try again!");
+                alertDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK",
+                        new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                dialog.dismiss();
+                            }
+                        });
+                alertDialog.show();
+
+            }
+        }
+        ) {
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String>  params = new HashMap<String, String>();
+                params.put("Authorization", Config.token);
+                return params;
+            }
+        };
+
+        jsonRequest.setTag("TIMETABLE");
+        queue.add(jsonRequest);
+        //jsonRequest.get();
+        // Add the request to the RequestQueue.
+    }
+
 
 
     protected void addResult(final TrainResult trainresults)

@@ -18,6 +18,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -32,6 +36,7 @@ import com.google.gson.Gson;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,7 +52,7 @@ public class ScheduleActivity extends AppCompatActivity {
      */
     private SectionsPagerAdapter mSectionsPagerAdapter;
 
-    protected Lines[] lines;
+    protected static Lines[] lines;
 
     RequestQueue queue;
     JsonArrayRequest jsObjRequest ;
@@ -57,7 +62,7 @@ public class ScheduleActivity extends AppCompatActivity {
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-
+    static Spinner linesname;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,7 +70,10 @@ public class ScheduleActivity extends AppCompatActivity {
 
         //get lines
 
-
+        android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
         queue = Volley.newRequestQueue(ScheduleActivity.this);
         String url ="http://54.186.113.106/timetable";
@@ -78,8 +86,7 @@ public class ScheduleActivity extends AppCompatActivity {
                         Gson gson = new Gson();
                         lines = gson.fromJson(response.toString(), Lines[].class);
 
-                        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-                        setSupportActionBar(toolbar);
+
                         // Create the adapter that will return a fragment for each of the three
                         // primary sections of the activity.
                         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -90,8 +97,7 @@ public class ScheduleActivity extends AppCompatActivity {
 
 
 
-                        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
-                        tabLayout.setupWithViewPager(mViewPager);
+
 
                     }
                 },  new Response.ErrorListener()
@@ -200,9 +206,43 @@ public class ScheduleActivity extends AppCompatActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_schedule, container, false);
-            //TextView textView = (TextView) rootView.findViewById(R.id.section_label);
-            //textView.setText(getString(R.string.section_format, getArguments().getInt(ARG_SECTION_NUMBER)));
+            final View rootView = inflater.inflate(R.layout.fragment_schedule, container, false);
+
+            TextView directions = (TextView) rootView.findViewById(R.id.directions);
+            linesname = (Spinner) rootView.findViewById(R.id.linesspinner);
+            ArrayAdapter<String> stations_adapter;
+            ArrayList<String> stations = new ArrayList<>();
+            final int sectionNumber = getArguments().getInt(ARG_SECTION_NUMBER)-1;
+            directions.setText(lines[sectionNumber].from + "->"+lines[sectionNumber].to);
+            for (int i = 0; i < lines[sectionNumber].timetables.length ; i++)
+            {
+                stations.add(String.format("%02d:%02d", lines[sectionNumber].timetables[i].departure / 60, lines[sectionNumber].timetables[i].departure % 60) + " "+" "+String.format("%02d:%02d", lines[sectionNumber].timetables[i].arrival / 60, lines[sectionNumber].timetables[i].arrival % 60) );
+            }
+            stations_adapter = new ArrayAdapter<String>(container.getContext(), R.layout.spinner_layout, stations);
+            linesname.setAdapter(stations_adapter);
+
+            linesname.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                @Override
+                public void onItemSelected(AdapterView<?> parentView, View selectedItemView, int position, long id) {
+                    // create list
+                    ArrayList<String> listtrips = new ArrayList<String>();
+                    for (int i = 0; i < lines[sectionNumber].timetables[position].stations.length; i++) {
+                        listtrips.add(lines[sectionNumber].timetables[position].stations[i].name + " " + String.format("%02d:%02d", lines[sectionNumber].timetables[position].stations[i].departure / 60, lines[sectionNumber].timetables[position].stations[i].departure % 60));
+                    }
+                    ListView directions = (ListView) rootView.findViewById(R.id.listView);
+                    ArrayAdapter<String> adapter2;
+                    adapter2 = new ArrayAdapter<String>(rootView.getContext(), android.R.layout.simple_list_item_1, listtrips);
+                    directions.setAdapter(adapter2);
+                }
+
+                @Override
+                public void onNothingSelected(AdapterView<?> parentView) {
+                    // your code here
+                }
+
+            });
+
+
             return rootView;
         }
     }

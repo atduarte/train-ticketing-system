@@ -18,12 +18,15 @@
             android:layout_height="wrap_content" android:orientation="vertical">
 
 
+
             <ImageView
-                android:layout_width="150dp"
-                android:layout_height="150dp"
+                android:layout_width="280dp"
+                android:layout_height="118dp"
+                android:layout_marginTop="50dp"
+                android:layout_marginBottom="40dp"
                 android:id="@+id/logo_img"
                 android:layout_gravity="center_horizontal"
-                android:src="@mipmap/logo_img" />
+                android:src="@drawable/logo" />
 
             <android.support.design.widget.TextInputLayout android:layout_width="match_parent"
                 android:layout_height="wrap_content">

@@ -21,6 +21,7 @@ public class Station {
     Integer departuretime;
     Integer arrivaltime;
 
+    Integer linedepaturetime;
 
     Station(String tr)
     {
@@ -36,6 +37,7 @@ public class Station {
             distance = Double.parseDouble(js.get("distance").toString());
             arrivaltime = Integer.parseInt(js.getJSONObject("times").getString("arrival"));
             departuretime = Integer.parseInt(js.getJSONObject("times").getString("departure"));
+            linedepaturetime = Integer.parseInt(js.getJSONObject("lineTimes").getString("departure"));
             duration = Double.parseDouble(js.get("duration").toString());
             from = Integer.parseInt(js.get("from").toString());
             to = Integer.parseInt(js.get("to").toString());

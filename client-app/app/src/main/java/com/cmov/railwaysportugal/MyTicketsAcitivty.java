@@ -67,6 +67,7 @@ public class MyTicketsAcitivty extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setTitle("My Tickets");
         setContentView(R.layout.activity_my_tickets_acitivty);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.

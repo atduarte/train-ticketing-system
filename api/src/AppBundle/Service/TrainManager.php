@@ -171,9 +171,9 @@ class TrainManager
             throw new BadRequestHttpException('Trip is full.');
         }
 
-        if (!$this->creditCardValidator->validate($user->getCreditCard())) {
-            throw new BadRequestHttpException('Credit Card failed.');
-        }
+//        if (!$this->creditCardValidator->validate($user->getCreditCard())) {
+//            throw new BadRequestHttpException('Credit Card failed.');
+//        }
 
         // Create Ticket
         $ticket = new Ticket($user, $trip, $from, $to);

@@ -135,15 +135,16 @@ class TrainManager
     }
 
     /**
-     * @param $user
+     * @param User $user
      * @param $date
      * @param $lineNumber
      * @param $from
      * @param $to
      * @param $lineDeparture
+     * @param int $continuation
      * @return Ticket|null
      */
-    public function buyTicket(User $user, $date, $lineNumber, $from, $to, $lineDeparture)
+    public function buyTicket(User $user, $date, $lineNumber, $from, $to, $lineDeparture, $continuation = 0)
     {
         // Get Trip
         $trip = $this->documentManager->getRepository('AppBundle:Trip')
@@ -171,7 +172,7 @@ class TrainManager
             throw new BadRequestHttpException('Trip is full.');
         }
 
-        if (!$this->creditCardValidator->validate($user->getCreditCard())) {
+        if ($continuation == 1 && !$this->creditCardValidator->validate($user->getCreditCard())) {
             throw new BadRequestHttpException('Credit Card failed.');
         }
 

@@ -100,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
             if (!Objects.equals(ticket.getLineNumber(), lineNumber)
                     || !Objects.equals(ticket.getDeparture(), departure)
-                    || dateFormat.format(new Date()).equals(ticket.getDate())) {
+                    || !dateFormat.format(new Date()).equals(ticket.getDate())) {
                 message = "Invalid. Wrong trip";
                 break;
             }

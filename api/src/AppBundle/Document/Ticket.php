@@ -29,10 +29,13 @@ class Ticket
     /** @MongoDB\Field(type="integer") */
     private $to;
 
-    public function __construct($user, $trip, $from, $to)
+    private $date;
+
+    public function __construct($user, Trip $trip, $from, $to)
     {
         $this->user = $user;
         $this->trip = $trip;
+        $this->date = $trip->getDate();
         $this->from = $from;
         $this->to = $to;
     }

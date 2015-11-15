@@ -64,8 +64,9 @@ class TicketsController extends BaseController
         $from = $request->request->get('from');
         $to = $request->request->get('to');
         $date = $this->parseDate($request->request->get('date'));
+        $continuation = $request->request->get('continuation', 0);
 
-        $ticket = $this->get('train_manager')->buyTicket($user, $date, $lineNumber, $from, $to, $lineDeparture);
+        $ticket = $this->get('train_manager')->buyTicket($user, $date, $lineNumber, $from, $to, $lineDeparture, $continuation);
 
         if (!$ticket) {
             throw new \Exception('Couldn\'t buy the ticket');
